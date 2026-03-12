@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="数学マスター">
+<title>数学マスター</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0F1F3D;--sub:#5A7099;--sky:#3B82F6;--sky2:#1D4ED8;
+  --mint:#10B981;--coral:#F43F5E;--amber:#F59E0B;--purple:#8B5CF6;
+  --bg:#F0F5FF;--card:#fff;--r:16px;
+  --sat:env(safe-area-inset-top,0px);
+  --sab:env(safe-area-inset-bottom,0px);
+  --sal:env(safe-area-inset-left,0px);
+  --sar:env(safe-area-inset-right,0px);
+}
+html,body{width:100%;height:100%;overflow:hidden;-webkit-text-size-adjust:none}
+body{
+  font-family:'Noto Sans JP','Nunito',sans-serif;
+  background:var(--bg);color:var(--ink);
+  padding:var(--sat) var(--sar) var(--sab) var(--sal);
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+input,textarea{user-select:text;-webkit-user-select:text}
+#app{width:100vw;height:100vh;overflow:hidden;position:relative;
+  background:linear-gradient(135deg,#EEF4FF 0%,#F5F0FF 50%,#EDFDF6 100%)}
+
+/* ── SCREEN 切り替え ── */
+.screen{display:none;width:100%;height:100%}
+.screen.active{display:flex}
+
+/* ── PORTAL ── */
+#portal{flex-direction:row}
+.portal-brand{
+  width:360px;flex-shrink:0;
+  background:linear-gradient(160deg,#1D4ED8 0%,#7C3AED 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:18px;padding:40px 28px;position:relative;overflow:hidden;
+}
+.portal-brand::before{content:'';position:absolute;top:-50px;right:-50px;
+  width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.07)}
+.portal-brand::after{content:'';position:absolute;bottom:-40px;left:-40px;
+  width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.05)}
+.brand-icon{font-size:68px;animation:float 3s ease-in-out infinite;
+  filter:drop-shadow(0 6px 18px rgba(0,0,0,.3));position:relative;z-index:1}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-10px) rotate(4deg)}}
+.brand-title{font-family:'Nunito',sans-serif;font-size:32px;font-weight:900;
+  color:#fff;text-align:center;line-height:1.15;position:relative;z-index:1}
+.brand-sub{font-size:13px;color:rgba(255,255,255,.75);text-align:center;
+  line-height:1.65;position:relative;z-index:1}
+.stat-chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;position:relative;z-index:1}
+.chip{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);
+  border-radius:50px;padding:7px 14px;text-align:center}
+.chip-num{font-size:22px;font-weight:900;color:#fff;line-height:1}
+.chip-label{font-size:10px;color:rgba(255,255,255,.7);margin-top:2px}
+.portal-main{flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:40px 36px;gap:24px}
+.section-label{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--sub);width:100%;max-width:360px}
+.curriculum-pills{display:flex;gap:8px;flex-wrap:wrap;width:100%;max-width:360px}
+.pill{padding:5px 14px;border-radius:50px;font-size:12px;font-weight:700}
+.pill-1{background:#EFF6FF;color:#1D4ED8;border:2px solid #BFDBFE}
+.pill-2{background:#F5F3FF;color:#7C3AED;border:2px solid #DDD6FE}
+.pill-3{background:#ECFDF5;color:#065F46;border:2px solid #A7F3D0}
+.btn-group{display:flex;flex-direction:column;gap:11px;width:100%;max-width:360px}
+
+/* ── BUTTONS ── */
+.btn{
+  min-height:54px;width:100%;border:none;border-radius:14px;
+  font-family:'Nunito','Noto Sans JP',sans-serif;font-size:17px;font-weight:800;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;
+  transition:transform .13s cubic-bezier(.34,1.56,.64,1),box-shadow .13s;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+.btn:active{transform:scale(.95)!important}
+.btn:disabled{opacity:.4;pointer-events:none}
+.btn-start{background:linear-gradient(135deg,#3B82F6,#1D4ED8);color:#fff;
+  box-shadow:0 4px 18px rgba(29,78,216,.4)}
+.btn-analysis{background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:#fff;
+  box-shadow:0 4px 18px rgba(109,40,217,.3)}
+.btn-ghost{background:#fff;color:var(--coral);border:2px solid #FECDD3}
+.btn-sm{min-height:50px;width:auto;padding:0 26px;border-radius:50px}
+.btn-submit{background:linear-gradient(135deg,#10B981,#065F46);color:#fff;
+  box-shadow:0 3px 14px rgba(16,185,129,.4)}
+.btn-next{background:linear-gradient(135deg,#3B82F6,#1D4ED8);color:#fff;
+  box-shadow:0 3px 14px rgba(29,78,216,.38)}
+.btn-close-r{width:44px;height:44px;border-radius:50%;background:#F1F5F9;
+  border:none;font-size:18px;color:var(--sub);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.btn-close-r:active{background:#E2E8F0}
+
+/* ── QUIZ ── */
+#quiz{flex-direction:column}
+.quiz-bar{background:#fff;padding:11px 18px;display:flex;align-items:center;gap:13px;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);z-index:10;flex-shrink:0}
+.prog-track{flex:1;height:10px;background:#E2E8F0;border-radius:10px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,#60A5FA,#1D4ED8);
+  border-radius:10px;transition:width .4s ease}
+.quiz-num{font-size:14px;font-weight:800;color:var(--sky2);min-width:42px;text-align:right}
+.quiz-panels{flex:1;display:grid;grid-template-columns:1fr 2px 1fr;overflow:hidden}
+.panel-sep{background:linear-gradient(180deg,#93C5FD,#C4B5FD,#6EE7B7);opacity:.35}
+.q-panel{padding:28px 32px;display:flex;flex-direction:column;
+  justify-content:center;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.topic-tag{display:inline-flex;align-items:center;gap:7px;
+  background:#EFF6FF;border-radius:50px;padding:5px 13px;
+  margin-bottom:18px;width:fit-content;border:1.5px solid #BFDBFE}
+.tag-dot{width:8px;height:8px;border-radius:50%;background:var(--sky2);
+  animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.tag-name{font-size:12px;font-weight:700;color:var(--sky2)}
+.tag-type{font-size:11px;background:#DBEAFE;color:var(--sky2);
+  padding:2px 8px;border-radius:8px;font-weight:700}
+.q-text{font-size:clamp(16px,2.2vw,23px);font-weight:700;
+  line-height:1.8;white-space:pre-wrap;color:var(--ink)}
+.q-hint{margin-top:16px;font-size:13px;color:var(--sub);
+  background:#FFFBEB;border-left:3px solid var(--amber);
+  padding:9px 13px;border-radius:0 9px 9px 0;line-height:1.6}
+.a-panel{padding:24px 28px;display:flex;flex-direction:column;
+  background:rgba(255,255,255,.6);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.a-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--sub);margin-bottom:13px}
+.input-wrap-c{flex:1;display:flex;align-items:center;justify-content:center}
+.input-calc{
+  text-align:center;
+  font-family:'Nunito',sans-serif;font-size:30px;font-weight:900;color:var(--ink);
+  border:3px solid #DBEAFE;border-radius:14px;padding:16px 20px;
+  background:#fff;outline:none;width:220px;
+  transition:border-color .2s,box-shadow .2s;
+  -webkit-appearance:none;
+}
+.input-calc:focus{border-color:var(--sky);box-shadow:0 0 0 4px rgba(59,130,246,.18)}
+.input-desc{
+  text-align:left;font-family:'Noto Sans JP',sans-serif;font-size:16px;color:var(--ink);
+  border:3px solid #DBEAFE;border-radius:14px;padding:14px 16px;
+  background:#fff;outline:none;resize:none;line-height:1.75;
+  flex:1;min-height:80px;
+  transition:border-color .2s,box-shadow .2s;
+  -webkit-appearance:none;
+}
+.input-desc:focus{border-color:var(--sky);box-shadow:0 0 0 4px rgba(59,130,246,.18)}
+input:disabled,textarea:disabled{background:#F8FAFC;color:var(--sub)}
+.a-footer{display:flex;align-items:center;justify-content:space-between;
+  margin-top:14px;flex-shrink:0;gap:10px}
+.remain-badge{background:#fff;border:2px solid #DBEAFE;border-radius:50px;
+  padding:6px 14px;font-size:12px;font-weight:700;color:var(--sub);
+  display:flex;align-items:center;gap:3px;flex-shrink:0}
+.remain-num{font-size:21px;font-weight:900;color:var(--sky2)}
+
+/* ── OVERLAY ── */
+.overlay{position:fixed;inset:0;background:rgba(15,31,61,.55);
+  display:none;align-items:center;justify-content:center;
+  z-index:200;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  padding:20px;animation:fadeIn .18s ease}
+.overlay.show{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.fb-card{background:#fff;border-radius:22px;padding:32px 26px 24px;
+  max-width:480px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,.22);
+  animation:popUp .26s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popUp{from{transform:scale(.87) translateY(20px);opacity:0}
+  to{transform:scale(1) translateY(0);opacity:1}}
+.fb-icon{font-size:50px;text-align:center;display:block;margin-bottom:11px}
+.fb-title{font-size:24px;font-weight:900;text-align:center;margin-bottom:13px}
+.fb-title.ok{color:var(--mint)}.fb-title.ng{color:var(--coral)}
+.fb-box{background:#F8FAFF;border-radius:11px;padding:12px 16px;
+  font-size:14px;line-height:1.75;margin-bottom:12px;color:var(--ink)}
+.fb-box strong{color:var(--sky2)}
+.fb-comment{background:#FFFBEB;border-radius:11px;padding:12px 16px;
+  font-size:14px;line-height:1.8;margin-bottom:18px;color:var(--ink)}
+.fb-comment::before{content:'💬 '}
+.fb-foot{display:flex;justify-content:flex-end}
+
+/* ── LOADING ── */
+#loading{flex-direction:column;align-items:center;justify-content:center;gap:26px}
+.dots{display:flex;gap:11px}
+.dot{width:14px;height:14px;border-radius:50%;animation:jump 1.1s ease-in-out infinite}
+.dot:nth-child(1){background:var(--sky);animation-delay:0s}
+.dot:nth-child(2){background:var(--purple);animation-delay:.18s}
+.dot:nth-child(3){background:var(--mint);animation-delay:.36s}
+@keyframes jump{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
+.loading-msg{font-size:18px;font-weight:700;color:var(--sky2);
+  animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+
+/* ── RESULT ── */
+#result{flex-direction:row}
+.result-left{flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:36px 28px;gap:18px;
+  border-right:2px solid rgba(59,130,246,.12)}
+.result-right{flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:36px 28px;gap:14px}
+.score-ring{width:144px;height:144px;border-radius:50%;
+  border:6px solid var(--sky2);
+  background:linear-gradient(135deg,#EFF6FF,#F5F3FF);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  box-shadow:0 6px 28px rgba(29,78,216,.2)}
+.score-big{font-size:40px;font-weight:900;color:var(--sky2);line-height:1}
+.score-unit{font-size:17px}
+.score-sub{font-size:11px;color:var(--sub);margin-top:3px}
+.score-detail{display:flex;gap:18px}
+.sd-item{text-align:center}
+.sd-num{font-size:24px;font-weight:900}
+.sd-num.ok{color:var(--mint)}.sd-num.ng{color:var(--coral)}
+.sd-label{font-size:11px;color:var(--sub);margin-top:2px}
+.result-msg{background:linear-gradient(135deg,#ECFDF5,#F5F3FF);
+  border-radius:16px;padding:18px 20px;text-align:center;
+  max-width:320px;width:100%}
+.r-emoji{font-size:42px;display:block;margin-bottom:9px}
+.r-title{font-size:19px;font-weight:900;color:var(--ink)}
+.r-sub{font-size:12px;color:var(--sub);margin-top:7px;line-height:1.65}
+.result-btns{display:flex;flex-direction:column;gap:10px;width:100%;max-width:270px}
+
+/* ── ANALYSIS ── */
+#analysis{flex-direction:row}
+.a-col{flex:1;padding:24px;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  display:flex;flex-direction:column;gap:16px}
+.a-col:first-child{border-right:2px solid rgba(59,130,246,.1)}
+.sec-title{font-size:17px;font-weight:900;
+  background:linear-gradient(135deg,var(--sky2),var(--purple));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.chart-box{background:#fff;border-radius:13px;padding:16px;
+  box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.chart-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:12px}
+.day-bars{display:flex;align-items:flex-end;gap:7px;height:82px}
+.day-col{flex:1;display:flex;flex-direction:column;align-items:center;
+  gap:4px;height:100%;justify-content:flex-end}
+.day-bar{width:100%;max-width:32px;border-radius:5px 5px 0 0;
+  background:linear-gradient(180deg,#60A5FA,#1D4ED8);min-height:4px;
+  transition:height .7s cubic-bezier(.34,1.56,.64,1)}
+.day-lbl{font-size:10px;font-weight:700;color:var(--sub)}
+.tb-list{display:flex;flex-direction:column;gap:11px}
+.tb-row{display:flex;align-items:center;gap:8px}
+.tb-name{font-size:11px;font-weight:700;color:var(--sub);
+  width:100px;flex-shrink:0;text-align:right}
+.tb-track{flex:1;height:17px;background:#F1F5F9;border-radius:8px;
+  overflow:hidden;position:relative}
+.tb-ok{height:100%;background:linear-gradient(90deg,#34D399,#059669);
+  border-radius:8px;transition:width .9s cubic-bezier(.34,1.56,.64,1)}
+.tb-ng{position:absolute;top:0;height:100%;
+  background:linear-gradient(90deg,#FB7185,#E11D48);border-radius:8px;opacity:.75}
+.tb-pct{font-size:11px;font-weight:700;color:var(--ink);width:30px;text-align:right}
+.wt-list{display:flex;flex-direction:column;gap:7px}
+.wt-row{display:flex;align-items:center;justify-content:space-between;
+  padding:9px 12px;background:#F8FAFF;border-radius:9px}
+.wt-name{font-size:12px;font-weight:700;color:var(--ink)}
+.wt-badge{font-size:11px;font-weight:800;padding:3px 12px;border-radius:18px;color:#fff}
+.wt-hi{background:var(--coral)}.wt-md{background:var(--sky2)}.wt-lo{background:var(--mint)}
+.no-data{font-size:13px;color:var(--sub);text-align:center;padding:14px 0}
+.note-txt{font-size:11px;color:#94A3B8;line-height:1.6;margin-top:9px}
+.save-note{font-size:11px;color:#059669;text-align:center;
+  background:#ECFDF5;border-radius:8px;padding:8px 12px}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ポータル -->
+  <div id="portal" class="screen active">
+    <div class="portal-brand">
+      <div class="brand-icon">🧮</div>
+      <div class="brand-title">数学マスター</div>
+      <div class="brand-sub">中学1年生 4〜7月<br>毎日ちがう問題で実力アップ！</div>
+      <div class="stat-chips" id="stat-chips" style="display:none">
+        <div class="chip"><div class="chip-num" id="st-session">0</div><div class="chip-label">セッション</div></div>
+        <div class="chip"><div class="chip-num" id="st-rate">--%</div><div class="chip-label">正解率</div></div>
+        <div class="chip"><div class="chip-num" id="st-total">0</div><div class="chip-label">累計正解</div></div>
+      </div>
+    </div>
+    <div class="portal-main">
+      <div class="section-label">📚 今日の学習範囲</div>
+      <div class="curriculum-pills">
+        <span class="pill pill-1">正の数・負の数（4月）</span>
+        <span class="pill pill-2">文字と式（5〜6月）</span>
+        <span class="pill pill-3">方程式（6〜7月）</span>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-start" onclick="startSession()">✏️ 学習を開始する</button>
+        <button class="btn btn-analysis" onclick="showScreen('analysis'); renderAnalysis()">📊 分析結果を見る</button>
+      </div>
+      <div style="font-size:11px;color:#94A3B8;text-align:center;line-height:1.7">
+        基礎10問＋応用10問 · 全75問収録<br>
+        苦手単元は自動で出題数が増えます<br>
+        <span style="color:#059669">💾 学習データはこのiPadに保存されます</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ローディング -->
+  <div id="loading" class="screen">
+    <span style="font-size:58px">🎯</span>
+    <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    <div class="loading-msg" id="loading-msg">問題を準備中...</div>
+  </div>
+
+  <!-- クイズ -->
+  <div id="quiz" class="screen">
+    <div class="quiz-bar">
+      <button class="btn-close-r" onclick="stopSession()">✕</button>
+      <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+      <div class="quiz-num" id="quiz-num">1/20</div>
+    </div>
+    <div class="quiz-panels">
+      <div class="q-panel">
+        <div class="topic-tag">
+          <div class="tag-dot"></div>
+          <span class="tag-name" id="tag-name">単元</span>
+          <span class="tag-type" id="tag-type">基礎</span>
+        </div>
+        <div class="q-text" id="q-text">問題文</div>
+        <div class="q-hint" id="q-hint" style="display:none"></div>
+      </div>
+      <div class="panel-sep"></div>
+      <div class="a-panel">
+        <div class="a-label">解答欄</div>
+        <div class="input-wrap-c" id="input-wrap-c">
+          <input class="input-calc" id="input-calc" type="text" inputmode="decimal" placeholder="答えを入力" autocomplete="off">
+        </div>
+        <textarea class="input-desc" id="input-desc" placeholder="答えを入力してください..." style="display:none"></textarea>
+        <div class="a-footer">
+          <div class="remain-badge">残り <span class="remain-num" id="remain-num">19</span> 問</div>
+          <button class="btn btn-sm btn-submit" id="btn-submit" onclick="submitAnswer()">回答する ✓</button>
+          <button class="btn btn-sm btn-next" id="btn-next" onclick="nextQuestion()" style="display:none">次の問題へ →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- フィードバックオーバーレイ -->
+  <div class="overlay" id="overlay">
+    <div class="fb-card">
+      <span class="fb-icon" id="fb-icon">🌟</span>
+      <div class="fb-title" id="fb-title">正解！</div>
+      <div class="fb-box">
+        <div><strong>正解：</strong><span id="fb-correct"></span></div>
+        <div style="margin-top:6px;color:#5A7099"><strong>あなたの回答：</strong><span id="fb-user"></span></div>
+      </div>
+      <div class="fb-comment" id="fb-comment"></div>
+      <div class="fb-foot">
+        <button class="btn btn-sm btn-next" id="fb-next-btn" onclick="nextQuestion()">次の問題へ →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 結果 -->
+  <div id="result" class="screen">
+    <div class="result-left">
+      <div class="score-ring">
+        <div class="score-big"><span id="res-rate">0</span><span class="score-unit">%</span></div>
+        <div class="score-sub" id="res-sub">0/20問正解</div>
+      </div>
+      <div class="score-detail">
+        <div class="sd-item"><div class="sd-num ok" id="res-basic">0/10</div><div class="sd-label">基礎</div></div>
+        <div class="sd-item"><div class="sd-num ok" id="res-applied">0/10</div><div class="sd-label">応用</div></div>
+        <div class="sd-item"><div class="sd-num ng" id="res-wrong">0</div><div class="sd-label">要復習</div></div>
+      </div>
+    </div>
+    <div class="result-right">
+      <div class="result-msg">
+        <span class="r-emoji" id="r-emoji">🌟</span>
+        <div class="r-title" id="r-title">すばらしい！</div>
+        <div class="r-sub">今日も学習お疲れさまでした！<br>毎日続けることが力になります。</div>
+      </div>
+      <div class="result-btns">
+        <button class="btn btn-start" onclick="startSession()">🔄 もう一度挑戦する</button>
+        <button class="btn btn-analysis" onclick="showScreen('analysis'); renderAnalysis()">📊 週次分析を見る</button>
+        <button class="btn btn-ghost" onclick="showScreen('portal'); updatePortalStats()">← ポータルに戻る</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 分析 -->
+  <div id="analysis" class="screen">
+    <div class="a-col">
+      <div class="sec-title">📊 週次分析レポート</div>
+      <div class="chart-box">
+        <div class="chart-title">📅 日別 正解数</div>
+        <div class="day-bars" id="day-bars"><div class="no-data">まだデータがありません</div></div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-title">📚 単元別 正解率</div>
+        <div class="tb-list" id="topic-bars"><div class="no-data">まだデータがありません</div></div>
+      </div>
+    </div>
+    <div class="a-col">
+      <div class="sec-title">⚖️ 次回の出題バランス</div>
+      <div class="chart-box">
+        <div class="chart-title">自動調整された出題ウェイト</div>
+        <div class="wt-list" id="wt-list"></div>
+        <div class="note-txt">※ 正解率が低い単元は次回のセッションで多く出題されます</div>
+      </div>
+      <div class="save-note">💾 データはこのiPadに自動保存されています</div>
+      <button class="btn btn-start" style="max-width:260px" onclick="showScreen('portal'); updatePortalStats()">← ポータルに戻る</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ================================================================
+// 問題バンク
+// ================================================================
+const QB = [
+  {id:1,topic:"正の数・負の数",sub:"正負の数の概念",type:"basic",qType:"calc",
+   text:"次の数のうち、負の数をすべて選びなさい。\n　+3、-7、0、-1.5、+0.5",
+   answer:"-7, -1.5",judge:"text",hint:"0より小さい数が負の数です"},
+  {id:2,topic:"正の数・負の数",sub:"数直線",type:"basic",qType:"calc",
+   text:"数直線上で、-3より右にある整数を小さい順に3つ答えなさい。",
+   answer:"-2, -1, 0",judge:"text"},
+  {id:3,topic:"正の数・負の数",sub:"正負の数の概念",type:"basic",qType:"calc",
+   text:"海面からの高さが-40mとはどういう意味か答えなさい。",
+   answer:"海面より40m下",judge:"text",hint:"マイナスは「基準より下」を表します"},
+  {id:4,topic:"正の数・負の数",sub:"数直線",type:"basic",qType:"calc",
+   text:"+4と-4は数直線上で原点からそれぞれ何の距離にありますか？",
+   answer:"4",judge:"num"},
+  {id:5,topic:"正の数・負の数",sub:"絶対値",type:"basic",qType:"calc",
+   text:"|−8| を求めなさい。",answer:"8",judge:"num"},
+  {id:6,topic:"正の数・負の数",sub:"絶対値",type:"basic",qType:"calc",
+   text:"|+5| を求めなさい。",answer:"5",judge:"num"},
+  {id:7,topic:"正の数・負の数",sub:"絶対値",type:"basic",qType:"calc",
+   text:"絶対値が6になる数をすべて答えなさい。",answer:"+6, -6",judge:"text"},
+  {id:8,topic:"正の数・負の数",sub:"絶対値",type:"applied",qType:"calc",
+   text:"-3と-7では、絶対値が大きいのはどちらですか？",answer:"-7",judge:"num_in_ans"},
+  {id:9,topic:"正の数・負の数",sub:"加法・減法",type:"basic",qType:"calc",
+   text:"(+5) + (−3) を計算しなさい。",answer:"2",judge:"num"},
+  {id:10,topic:"正の数・負の数",sub:"加法・減法",type:"basic",qType:"calc",
+   text:"(−4) + (−6) を計算しなさい。",answer:"-10",judge:"num"},
+  {id:11,topic:"正の数・負の数",sub:"加法・減法",type:"basic",qType:"calc",
+   text:"(+3) − (−5) を計算しなさい。",answer:"8",judge:"num"},
+  {id:12,topic:"正の数・負の数",sub:"加法・減法",type:"basic",qType:"calc",
+   text:"(−7) − (+2) を計算しなさい。",answer:"-9",judge:"num"},
+  {id:13,topic:"正の数・負の数",sub:"加法・減法",type:"basic",qType:"calc",
+   text:"−3 + 8 を計算しなさい。",answer:"5",judge:"num"},
+  {id:14,topic:"正の数・負の数",sub:"加法・減法",type:"applied",qType:"calc",
+   text:"ある日の気温は朝に −2℃ で、昼に 9℃ 上がりました。昼の気温は何℃ですか？",
+   answer:"7",judge:"num"},
+  {id:15,topic:"正の数・負の数",sub:"加法・減法",type:"applied",qType:"calc",
+   text:"−5 + 3 − (−4) − 7 を計算しなさい。",answer:"-5",judge:"num"},
+  {id:16,topic:"正の数・負の数",sub:"加法・減法",type:"applied",qType:"calc",
+   text:"A地点の標高は +120m、B地点の標高は −30m です。A地点からB地点への高さの差は何mですか？",
+   answer:"150",judge:"num"},
+  {id:17,topic:"正の数・負の数",sub:"乗法・除法",type:"basic",qType:"calc",
+   text:"(+6) × (−3) を計算しなさい。",answer:"-18",judge:"num"},
+  {id:18,topic:"正の数・負の数",sub:"乗法・除法",type:"basic",qType:"calc",
+   text:"(−4) × (−5) を計算しなさい。",answer:"20",judge:"num"},
+  {id:19,topic:"正の数・負の数",sub:"乗法・除法",type:"basic",qType:"calc",
+   text:"(−24) ÷ (+8) を計算しなさい。",answer:"-3",judge:"num"},
+  {id:20,topic:"正の数・負の数",sub:"乗法・除法",type:"basic",qType:"calc",
+   text:"(−36) ÷ (−6) を計算しなさい。",answer:"6",judge:"num"},
+  {id:21,topic:"正の数・負の数",sub:"乗法・除法",type:"basic",qType:"calc",
+   text:"(−2)³ を計算しなさい。",answer:"-8",judge:"num"},
+  {id:22,topic:"正の数・負の数",sub:"乗法・除法",type:"applied",qType:"calc",
+   text:"(−3)² × 2 を計算しなさい。",answer:"18",judge:"num"},
+  {id:23,topic:"正の数・負の数",sub:"乗法・除法",type:"applied",qType:"calc",
+   text:"(−2) × 3 × (−4) を計算しなさい。",answer:"24",judge:"num"},
+  {id:24,topic:"正の数・負の数",sub:"四則混合計算",type:"basic",qType:"calc",
+   text:"3 + (−2) × 4 を計算しなさい。",answer:"-5",judge:"num"},
+  {id:25,topic:"正の数・負の数",sub:"四則混合計算",type:"basic",qType:"calc",
+   text:"(8 − 12) ÷ 2 + 3 を計算しなさい。",answer:"1",judge:"num"},
+  {id:26,topic:"正の数・負の数",sub:"四則混合計算",type:"applied",qType:"calc",
+   text:"−2 × (3 − 7) + 6 ÷ (−3) を計算しなさい。",answer:"6",judge:"num"},
+  {id:27,topic:"正の数・負の数",sub:"四則混合計算",type:"applied",qType:"calc",
+   text:"4 − (−3)² ÷ 3 × 2 を計算しなさい。",answer:"-2",judge:"num"},
+  {id:28,topic:"正の数・負の数",sub:"四則混合計算",type:"applied",qType:"calc",
+   text:"(−5 + 3) × (−4) − 8 ÷ (−2) を計算しなさい。",answer:"12",judge:"num"},
+  {id:29,topic:"文字と式",sub:"文字を使った式",type:"basic",qType:"calc",
+   text:"1個 a 円のりんごを5個買ったときの代金を、文字を使った式で表しなさい。",
+   answer:"5a円",judge:"text"},
+  {id:30,topic:"文字と式",sub:"文字を使った式",type:"basic",qType:"calc",
+   text:"x ÷ 3 を、×や÷を使わずに表しなさい。",
+   answer:"x/3",judge:"text",hint:"÷3は分数で表せます"},
+  {id:31,topic:"文字と式",sub:"文字を使った式",type:"basic",qType:"calc",
+   text:"a × b × a を、簡単な式で表しなさい。",answer:"a²b",judge:"text"},
+  {id:32,topic:"文字と式",sub:"文字を使った式",type:"basic",qType:"calc",
+   text:"たて x cm、よこ 8 cm の長方形の面積を文字式で表しなさい。",
+   answer:"8x cm²",judge:"text"},
+  {id:33,topic:"文字と式",sub:"式の値",type:"basic",qType:"calc",
+   text:"x = 3 のとき、2x + 1 の値を求めなさい。",answer:"7",judge:"num"},
+  {id:34,topic:"文字と式",sub:"式の値",type:"basic",qType:"calc",
+   text:"a = −2 のとき、a² − a の値を求めなさい。",answer:"6",judge:"num"},
+  {id:35,topic:"文字と式",sub:"式の値",type:"basic",qType:"calc",
+   text:"x = 4、y = −1 のとき、3x + 2y の値を求めなさい。",answer:"10",judge:"num"},
+  {id:36,topic:"文字と式",sub:"式の値",type:"applied",qType:"calc",
+   text:"a = −3 のとき、−2a² + 5a − 1 の値を求めなさい。",answer:"-34",judge:"num"},
+  {id:37,topic:"文字と式",sub:"一次式の計算",type:"basic",qType:"calc",
+   text:"3x + 2x を計算しなさい。",answer:"5x",judge:"text"},
+  {id:38,topic:"文字と式",sub:"一次式の計算",type:"basic",qType:"calc",
+   text:"7a − 3a + 2a を計算しなさい。",answer:"6a",judge:"text"},
+  {id:39,topic:"文字と式",sub:"一次式の計算",type:"basic",qType:"calc",
+   text:"4(2x − 3) を計算しなさい。",answer:"8x-12",judge:"text"},
+  {id:40,topic:"文字と式",sub:"一次式の計算",type:"basic",qType:"calc",
+   text:"(6x + 9) ÷ 3 を計算しなさい。",answer:"2x+3",judge:"text"},
+  {id:41,topic:"文字と式",sub:"一次式の計算",type:"basic",qType:"calc",
+   text:"(5x − 2) + (3x + 7) を計算しなさい。",answer:"8x+5",judge:"text"},
+  {id:42,topic:"文字と式",sub:"一次式の計算",type:"basic",qType:"calc",
+   text:"(4a + 6) − (2a − 3) を計算しなさい。",answer:"2a+9",judge:"text"},
+  {id:43,topic:"文字と式",sub:"一次式の計算",type:"applied",qType:"calc",
+   text:"2(3x − 1) − 3(x + 2) を計算しなさい。",answer:"3x-8",judge:"text"},
+  {id:44,topic:"文字と式",sub:"一次式の計算",type:"applied",qType:"calc",
+   text:"x/2 + x/3 を計算しなさい。",answer:"5x/6",judge:"text",hint:"通分してみましょう"},
+  {id:45,topic:"文字と式",sub:"関係を表す式",type:"basic",qType:"desc",
+   text:"1冊 x 円のノートを3冊と、200円の消しゴムを買ったときの合計金額が800円以下であることを不等式で表しなさい。",
+   answer:"3x+200≦800",judge:"text"},
+  {id:46,topic:"文字と式",sub:"関係を表す式",type:"basic",qType:"desc",
+   text:"時速 x km で3時間走ったときの道のりが 90km であることを等式で表しなさい。",
+   answer:"3x=90",judge:"text"},
+  {id:47,topic:"文字と式",sub:"関係を表す式",type:"applied",qType:"desc",
+   text:"縦 a cm、横 b cm の長方形の周の長さが 30cm であることを等式で表しなさい。",
+   answer:"2(a+b)=30",judge:"text",hint:"周の長さ＝(縦+横)×2"},
+  {id:48,topic:"文字と式",sub:"関係を表す式",type:"applied",qType:"desc",
+   text:"x 個のあめを4人で等しく分けると、1人分が y 個になることを等式で表しなさい。",
+   answer:"x/4=y",judge:"text"},
+  {id:49,topic:"方程式",sub:"方程式とその解",type:"basic",qType:"calc",
+   text:"x = 2 は方程式 3x − 4 = 2 の解ですか？「はい」か「いいえ」で答えなさい。",
+   answer:"はい",judge:"text",hint:"x=2を代入して確認しましょう"},
+  {id:50,topic:"方程式",sub:"方程式とその解",type:"basic",qType:"calc",
+   text:"方程式 2x + 1 = 7 の解を求めなさい。",answer:"3",judge:"num"},
+  {id:51,topic:"方程式",sub:"等式の性質",type:"basic",qType:"desc",
+   text:"等式 a = b のとき、a + 3 = b + 3 が成り立つのはなぜか説明しなさい。",
+   answer:"両辺に同じ数を加えても等式は成り立つから",judge:"text"},
+  {id:52,topic:"方程式",sub:"一次方程式の解き方",type:"basic",qType:"calc",
+   text:"x + 7 = 12 を解きなさい。",answer:"5",judge:"num"},
+  {id:53,topic:"方程式",sub:"一次方程式の解き方",type:"basic",qType:"calc",
+   text:"3x = 18 を解きなさい。",answer:"6",judge:"num"},
+  {id:54,topic:"方程式",sub:"一次方程式の解き方",type:"basic",qType:"calc",
+   text:"2x − 5 = 9 を解きなさい。",answer:"7",judge:"num"},
+  {id:55,topic:"方程式",sub:"一次方程式の解き方",type:"basic",qType:"calc",
+   text:"4x + 3 = x + 12 を解きなさい。",answer:"3",judge:"num"},
+  {id:56,topic:"方程式",sub:"一次方程式の解き方",type:"basic",qType:"calc",
+   text:"5x − 8 = 3x + 4 を解きなさい。",answer:"6",judge:"num"},
+  {id:57,topic:"方程式",sub:"一次方程式の解き方",type:"applied",qType:"calc",
+   text:"2(x − 3) = 3x − 9 を解きなさい。",answer:"3",judge:"num"},
+  {id:58,topic:"方程式",sub:"一次方程式の解き方",type:"applied",qType:"calc",
+   text:"x/3 + 2 = 5 を解きなさい。",answer:"9",judge:"num"},
+  {id:59,topic:"方程式",sub:"一次方程式の解き方",type:"applied",qType:"calc",
+   text:"0.3x + 1.2 = 0.9 を解きなさい。",answer:"-1",judge:"num"},
+  {id:60,topic:"方程式",sub:"一次方程式の解き方",type:"applied",qType:"calc",
+   text:"(2x+1)/3 = (x−1)/2 を解きなさい。",answer:"-5",judge:"num",hint:"両辺に6をかけて分数を消しましょう"},
+  {id:61,topic:"方程式",sub:"一次方程式の利用",type:"applied",qType:"desc",
+   text:"ある数を3倍して5を足すと、その数に11を足した数と等しくなります。ある数を求めなさい。",
+   answer:"3",judge:"num"},
+  {id:62,topic:"方程式",sub:"一次方程式の利用",type:"applied",qType:"desc",
+   text:"1個80円のみかんと1個120円のりんごを合わせて10個買ったら代金は960円でした。みかんは何個買いましたか？",
+   answer:"6",judge:"num"},
+  {id:63,topic:"方程式",sub:"一次方程式の利用",type:"applied",qType:"desc",
+   text:"兄と弟の所持金の合計は2800円で、兄は弟より400円多く持っています。弟の所持金はいくらですか？",
+   answer:"1200",judge:"num"},
+  {id:64,topic:"方程式",sub:"一次方程式の利用",type:"applied",qType:"desc",
+   text:"家から学校まで分速60mで歩くと14分かかります。分速 x mで歩くと10分で着くとき、x を求めなさい。",
+   answer:"84",judge:"num"},
+  {id:65,topic:"方程式",sub:"一次方程式の利用",type:"applied",qType:"desc",
+   text:"現在、父の年齢は子の年齢の4倍です。8年後には父の年齢は子の年齢の2倍になります。現在の子の年齢を求めなさい。",
+   answer:"8",judge:"num"},
+  {id:66,topic:"正の数・負の数",sub:"加法・減法",type:"basic",qType:"calc",
+   text:"(−9) + (+4) を計算しなさい。",answer:"-5",judge:"num"},
+  {id:67,topic:"正の数・負の数",sub:"乗法・除法",type:"basic",qType:"calc",
+   text:"(+7) × (−4) を計算しなさい。",answer:"-28",judge:"num"},
+  {id:68,topic:"正の数・負の数",sub:"四則混合計算",type:"applied",qType:"calc",
+   text:"(−3) × 4 + 16 ÷ (−2) を計算しなさい。",answer:"-20",judge:"num"},
+  {id:69,topic:"文字と式",sub:"一次式の計算",type:"basic",qType:"calc",
+   text:"−3(2x − 5) を計算しなさい。",answer:"-6x+15",judge:"text"},
+  {id:70,topic:"方程式",sub:"一次方程式の解き方",type:"basic",qType:"calc",
+   text:"−3x + 6 = −9 を解きなさい。",answer:"5",judge:"num"},
+  {id:71,topic:"正の数・負の数",sub:"絶対値",type:"basic",qType:"calc",
+   text:"|-12| + |−5| を計算しなさい。",answer:"17",judge:"num"},
+  {id:72,topic:"文字と式",sub:"式の値",type:"basic",qType:"calc",
+   text:"x = −4 のとき、x² + 2x の値を求めなさい。",answer:"8",judge:"num"},
+  {id:73,topic:"方程式",sub:"一次方程式の利用",type:"applied",qType:"desc",
+   text:"連続する3つの整数の和が63です。最も小さい整数を求めなさい。",answer:"20",judge:"num"},
+  {id:74,topic:"正の数・負の数",sub:"四則混合計算",type:"basic",qType:"calc",
+   text:"12 ÷ (−4) + (−3) × 2 を計算しなさい。",answer:"-9",judge:"num"},
+  {id:75,topic:"文字と式",sub:"一次式の計算",type:"applied",qType:"calc",
+   text:"3(x + 4) − 2(2x − 1) を計算しなさい。",answer:"-x+14",judge:"text"},
+];
+
+// ================================================================
+// STATE（localStorageで永続化）
+// ================================================================
+const LS_KEY = 'mathmaster_v1';
+
+function loadState() {
+  try {
+    const s = localStorage.getItem(LS_KEY);
+    return s ? JSON.parse(s) : null;
+  } catch(e) { return null; }
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      weights, usedIds, weekData, sessionCount, totalCorrect
+    }));
+  } catch(e) {}
+}
+
+const saved = loadState();
+let weights      = saved?.weights      || {"正の数・負の数":1,"文字と式":1,"方程式":1};
+let usedIds      = saved?.usedIds      || [];
+let weekData     = saved?.weekData     || {days:[],topicStats:{}};
+let sessionCount = saved?.sessionCount || 0;
+let totalCorrect = saved?.totalCorrect || 0;
+
+// セッション変数
+let questions = [];
+let idx = 0;
+let results = [];
+
+// ================================================================
+// 採点
+// ================================================================
+function norm(s) {
+  return String(s).replace(/\s+/g,'')
+    .replace(/×/g,'*').replace(/÷/g,'/')
+    .replace(/[−‐‑]/g,'-').replace(/[＋]/g,'+')
+    .replace(/[＝]/g,'=').replace(/[≦]/g,'<=').replace(/[≧]/g,'>=')
+    .replace(/²/g,'^2').replace(/³/g,'^3')
+    .toLowerCase().trim();
+}
+
+function judge(q, raw) {
+  const u = norm(raw), c = norm(q.answer);
+  if (q.judge === 'num') {
+    const un = parseFloat(u.replace(/[^0-9.\-]/g,'')), cn = parseFloat(c);
+    return !isNaN(un) && Math.abs(un-cn) < 0.001;
+  }
+  if (q.judge === 'num_in_ans') {
+    const cn = parseFloat(c.replace(/[^0-9.\-]/g,'')), un = parseFloat(u.replace(/[^0-9.\-]/g,''));
+    return !isNaN(un) && Math.abs(un-cn) < 0.001;
+  }
+  if (u === c) return true;
+  const up = u.split(/[,、]/).map(x=>x.trim()).sort();
+  const cp = c.split(/[,、]/).map(x=>x.trim()).sort();
+  return JSON.stringify(up) === JSON.stringify(cp);
+}
+
+function feedback(q, ok) {
+  const OK = [
+    `完璧！ ${q.sub} をしっかり理解しているね。この調子で！`,
+    `正解！ ${q.sub} は得意になってきたね。`,
+    `素晴らしい！ 答えの ${q.answer} が導き出せたね。`,
+    `大正解！ 計算の手順をしっかり追えています。`,
+    `やったね！ この問題を正解できたよ。`,
+  ];
+  const NG = [
+    `惜しい！ 正解は ${q.answer} です。${q.hint ? 'ヒント：'+q.hint : q.sub+' の手順をもう一度確認してみよう。'}`,
+    `もう少し！ 答えは ${q.answer} だよ。${q.sub} の解き方を振り返ってみよう。`,
+    `次は必ず解けるよ！ 正解は ${q.answer} です。`,
+    `間違いは学びのチャンス！ 正解は ${q.answer}。${q.hint||'途中式を書くと間違いが見つけやすいよ。'}`,
+    `ドンマイ！ 正解は ${q.answer} です。似た問題で練習しよう。`,
+  ];
+  const pool = ok ? OK : NG;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+// ================================================================
+// 問題選択
+// ================================================================
+function selectQuestions() {
+  const basics  = QB.filter(q=>q.type==='basic');
+  const applied = QB.filter(q=>q.type==='applied');
+
+  function pick(pool, n) {
+    const scored = pool.map(q => ({
+      q,
+      score: (weights[q.topic]||1) * (usedIds.includes(q.id)?0.3:1) * (0.5+Math.random()*0.5)
+    }));
+    scored.sort((a,b)=>b.score-a.score);
+    return scored.slice(0,n).map(s=>s.q);
+  }
+  return [...pick(basics,10), ...pick(applied,10)];
+}
+
+// ================================================================
+// 画面制御
+// ================================================================
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(name).classList.add('active');
+}
+
+// ================================================================
+// ポータル
+// ================================================================
+function updatePortalStats() {
+  const chips = document.getElementById('stat-chips');
+  if (sessionCount > 0) {
+    chips.style.display = 'flex';
+    const totalAns = weekData.days.reduce((s,d)=>s+d.total,0);
+    const totalOk  = weekData.days.reduce((s,d)=>s+d.correct,0);
+    const rate = totalAns>0 ? Math.round(totalOk/totalAns*100)+'%' : '--%';
+    document.getElementById('st-session').textContent = sessionCount;
+    document.getElementById('st-rate').textContent    = rate;
+    document.getElementById('st-total').textContent   = totalCorrect;
+  }
+}
+
+// ================================================================
+// セッション開始
+// ================================================================
+const MSGS = ['問題を準備中...','今日の問題を選んでいます...','よし、始めよう！'];
+let msgTimer;
+
+function startSession() {
+  showScreen('loading');
+  let mi=0;
+  document.getElementById('loading-msg').textContent = MSGS[0];
+  clearInterval(msgTimer);
+  msgTimer = setInterval(()=>{ mi=(mi+1)%MSGS.length; document.getElementById('loading-msg').textContent=MSGS[mi]; },1200);
+
+  setTimeout(()=>{
+    clearInterval(msgTimer);
+    questions = selectQuestions();
+    idx = 0;
+    results = [];
+    renderQuestion();
+    showScreen('quiz');
+  }, 800);
+}
+
+function stopSession() {
+  showScreen('portal');
+  updatePortalStats();
+}
+
+// ================================================================
+// 問題表示
+// ================================================================
+function renderQuestion() {
+  const q = questions[idx];
+  const total = questions.length;
+
+  document.getElementById('prog-fill').style.width = ((idx+1)/total*100)+'%';
+  document.getElementById('quiz-num').textContent   = (idx+1)+'/'+total;
+  document.getElementById('remain-num').textContent = Math.max(0, total-idx-1);
+  document.getElementById('tag-name').textContent   = q.topic;
+  document.getElementById('tag-type').textContent   = q.type==='basic'?'基礎':'応用';
+  document.getElementById('q-text').textContent     = q.text;
+
+  const hintEl = document.getElementById('q-hint');
+  if (q.hint) { hintEl.textContent='💡 '+q.hint; hintEl.style.display='block'; }
+  else { hintEl.style.display='none'; }
+
+  const wrapC  = document.getElementById('input-wrap-c');
+  const inputC = document.getElementById('input-calc');
+  const inputD = document.getElementById('input-desc');
+
+  if (q.qType === 'calc') {
+    wrapC.style.display='flex'; inputD.style.display='none';
+    inputC.value=''; inputC.disabled=false;
+    setTimeout(()=>inputC.focus(),150);
+  } else {
+    wrapC.style.display='none'; inputD.style.display='block';
+    inputD.value=''; inputD.disabled=false;
+    setTimeout(()=>inputD.focus(),150);
+  }
+
+  document.getElementById('btn-submit').style.display='flex';
+  document.getElementById('btn-next').style.display='none';
+  document.getElementById('overlay').classList.remove('show');
+}
+
+// ================================================================
+// 回答
+// ================================================================
+function getAnswer() {
+  const q = questions[idx];
+  return q.qType==='calc'
+    ? document.getElementById('input-calc').value.trim()
+    : document.getElementById('input-desc').value.trim();
+}
+
+function submitAnswer() {
+  const raw = getAnswer();
+  if (!raw) return;
+  const q = questions[idx];
+  const ok = judge(q, raw);
+  const comment = feedback(q, ok);
+
+  results.push({question:q, answer:raw, isCorrect:ok});
+
+  // 入力欄を無効化
+  document.getElementById('input-calc').disabled = true;
+  document.getElementById('input-desc').disabled = true;
+
+  // オーバーレイ表示
+  document.getElementById('fb-icon').textContent    = ok?'🌟':'💪';
+  document.getElementById('fb-title').textContent   = ok?'正解！':'不正解';
+  document.getElementById('fb-title').className     = 'fb-title '+(ok?'ok':'ng');
+  document.getElementById('fb-correct').textContent = q.answer;
+  document.getElementById('fb-user').textContent    = raw;
+  document.getElementById('fb-comment').textContent = comment;
+
+  const isLast = idx+1 >= questions.length;
+  document.getElementById('fb-next-btn').textContent = isLast?'結果を見る 🎉':'次の問題へ →';
+  document.getElementById('overlay').classList.add('show');
+}
+
+// ================================================================
+// 次へ
+// ================================================================
+function nextQuestion() {
+  document.getElementById('overlay').classList.remove('show');
+
+  if (idx+1 >= questions.length) {
+    finishSession();
+  } else {
+    idx++;
+    renderQuestion();
+  }
+}
+
+// ================================================================
+// セッション終了
+// ================================================================
+function finishSession() {
+  const allRes = results;
+  const newCorrect = allRes.filter(r=>r.isCorrect).length;
+  const total = allRes.length;
+
+  // 統計更新
+  const today = new Date().toLocaleDateString('ja-JP',{weekday:'short'});
+  const days = weekData.days;
+  const ex = days.find(d=>d.label===today);
+  if (ex) { ex.correct+=newCorrect; ex.total+=total; }
+  else { days.push({label:today,correct:newCorrect,total}); }
+  if (days.length>7) days.shift();
+
+  allRes.forEach(r=>{
+    const t = r.question.topic;
+    if (!weekData.topicStats[t]) weekData.topicStats[t]={correct:0,total:0};
+    weekData.topicStats[t].total++;
+    if (r.isCorrect) weekData.topicStats[t].correct++;
+  });
+
+  // ウェイト更新
+  const ts={};
+  allRes.forEach(r=>{
+    const t=r.question.topic;
+    if(!ts[t]) ts[t]={c:0,n:0};
+    ts[t].n++; if(r.isCorrect) ts[t].c++;
+  });
+  Object.keys(ts).forEach(t=>{
+    const rate=ts[t].c/ts[t].n;
+    weights[t]=parseFloat(Math.max(0.5,Math.min(3.0,1+(1-rate)*1.5)).toFixed(2));
+  });
+
+  // 使用済みID
+  usedIds=[...new Set([...usedIds,...allRes.map(r=>r.question.id)])].slice(-40);
+
+  sessionCount++;
+  totalCorrect+=newCorrect;
+
+  // 保存
+  saveState();
+
+  // 結果画面
+  const rate=Math.round(newCorrect/total*100);
+  const bOk=allRes.filter(r=>r.question.type==='basic'&&r.isCorrect).length;
+  const bTot=allRes.filter(r=>r.question.type==='basic').length;
+  const aOk=allRes.filter(r=>r.question.type==='applied'&&r.isCorrect).length;
+  const aTot=allRes.filter(r=>r.question.type==='applied').length;
+
+  document.getElementById('res-rate').textContent   = rate;
+  document.getElementById('res-sub').textContent    = newCorrect+'/'+total+'問正解';
+  document.getElementById('res-basic').textContent  = bOk+'/'+bTot;
+  document.getElementById('res-applied').textContent= aOk+'/'+aTot;
+  document.getElementById('res-wrong').textContent  = total-newCorrect;
+
+  const emoji = rate>=80?'🌟':rate>=60?'👍':rate>=40?'💪':'📚';
+  const msg   = rate>=80?'すばらしい！':rate>=60?'よくできました！':rate>=40?'まだまだ伸びしろあり！':'毎日続けよう！';
+  document.getElementById('r-emoji').textContent = emoji;
+  document.getElementById('r-title').textContent = msg;
+
+  showScreen('result');
+}
+
+// ================================================================
+// 分析
+// ================================================================
+function renderAnalysis() {
+  // 日別バー
+  const days = weekData.days;
+  const dEl = document.getElementById('day-bars');
+  if (days.length===0) { dEl.innerHTML='<div class="no-data">まだデータがありません</div>'; }
+  else {
+    const maxT = Math.max(...days.map(d=>d.total),1);
+    dEl.innerHTML = days.map(d=>`
+      <div class="day-col">
+        <div class="day-bar" style="height:${Math.max(4,d.correct/maxT*72)}px"></div>
+        <div class="day-lbl">${d.label}</div>
+      </div>`).join('');
+  }
+
+  // 単元別
+  const ts = weekData.topicStats;
+  const tEl = document.getElementById('topic-bars');
+  if (Object.keys(ts).length===0) { tEl.innerHTML='<div class="no-data">まだデータがありません</div>'; }
+  else {
+    tEl.innerHTML = Object.entries(ts).map(([t,s])=>{
+      const r=Math.round(s.correct/s.total*100);
+      return `<div class="tb-row">
+        <div class="tb-name">${t}</div>
+        <div class="tb-track">
+          <div class="tb-ok" style="width:${r}%"></div>
+          <div class="tb-ng" style="left:${r}%;width:${100-r}%"></div>
+        </div>
+        <div class="tb-pct">${r}%</div>
+      </div>`;
+    }).join('');
+  }
+
+  // ウェイト
+  const wEl = document.getElementById('wt-list');
+  wEl.innerHTML = Object.entries(weights).map(([t,w])=>{
+    const lv=w>=1.8?'hi':w>=1.2?'md':'lo';
+    const lb=w>=1.8?'重点強化中 🔥':w>=1.2?'通常 +':'得意 ✓';
+    return `<div class="wt-row">
+      <div class="wt-name">${t}</div>
+      <div class="wt-badge wt-${lv}">${lb}</div>
+    </div>`;
+  }).join('');
+}
+
+// ================================================================
+// キーボード
+// ================================================================
+document.addEventListener('keydown', e=>{
+  if (e.key==='Enter' && document.getElementById('quiz').classList.contains('active')) {
+    if (!document.getElementById('overlay').classList.contains('show')) {
+      const q=questions[idx];
+      if (q?.qType==='calc') submitAnswer();
+    }
+  }
+});
+
+// ================================================================
+// 初期化
+// ================================================================
+updatePortalStats();
+</script>
+</body>
+</html>
