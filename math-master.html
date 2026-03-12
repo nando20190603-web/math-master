@@ -254,6 +254,98 @@ input:disabled,textarea:disabled{background:#F8FAFC;color:var(--sub)}
 .note-txt{font-size:11px;color:#94A3B8;line-height:1.6;margin-top:9px}
 .save-note{font-size:11px;color:#059669;text-align:center;
   background:#ECFDF5;border-radius:8px;padding:8px 12px}
+
+/* ── RESPONSIVE (スマホ対応) ── */
+@media (max-width: 640px) {
+
+  /* PORTAL: 縦スタック */
+  #portal { flex-direction: column }
+  .portal-brand {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 16px 20px;
+    gap: 8px 14px;
+    min-height: unset;
+  }
+  .portal-brand::before { width: 100px; height: 100px; top: -30px; right: -30px }
+  .portal-brand::after  { width:  80px; height:  80px; bottom: -25px; left: -25px }
+  .brand-icon  { font-size: 40px }
+  .brand-title { font-size: 22px }
+  .brand-sub   { font-size: 11px; max-width: 100% }
+  .stat-chips  { justify-content: flex-start; gap: 6px }
+  .chip-num    { font-size: 18px }
+  .portal-main {
+    flex: 1;
+    padding: 20px 20px;
+    overflow-y: auto;
+    justify-content: flex-start;
+  }
+  .section-label,
+  .curriculum-pills,
+  .btn-group { max-width: 100% }
+
+  /* QUIZ: 縦スタック */
+  .quiz-bar { padding: 8px 12px; gap: 10px }
+  .quiz-num  { font-size: 13px }
+  .quiz-panels {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+  .panel-sep { display: none }
+  .q-panel {
+    padding: 20px 18px;
+    flex: none;
+    min-height: min-content;
+    justify-content: flex-start;
+  }
+  .a-panel {
+    padding: 16px 18px;
+    border-top: 2px solid rgba(59,130,246,.12);
+  }
+  .q-text { font-size: clamp(15px, 4.5vw, 19px) }
+  .input-calc {
+    width: 100%;
+    max-width: 100%;
+    font-size: 24px;
+    padding: 14px 12px;
+  }
+  .input-desc { font-size: 15px }
+  .remain-num { font-size: 18px }
+
+  /* RESULT: 縦スタック */
+  #result { flex-direction: column; overflow-y: auto }
+  .result-left {
+    flex: none;
+    border-right: none;
+    border-bottom: 2px solid rgba(59,130,246,.12);
+    padding: 24px 20px;
+  }
+  .result-right { flex: none; padding: 20px 20px }
+  .score-ring   { width: 110px; height: 110px }
+  .score-big    { font-size: 32px }
+  .score-detail { gap: 24px }
+  .result-btns  { max-width: 100% }
+
+  /* ANALYSIS: 縦スタック */
+  #analysis { flex-direction: column; overflow-y: auto }
+  .a-col:first-child {
+    border-right: none;
+    border-bottom: 2px solid rgba(59,130,246,.1);
+  }
+  .a-col   { padding: 16px 20px }
+  .tb-name { width: 76px; font-size: 10px }
+
+  /* フィードバックオーバーレイ */
+  .overlay  { padding: 12px }
+  .fb-card  { padding: 22px 16px 16px; border-radius: 16px }
+  .fb-title { font-size: 20px }
+  .fb-icon  { font-size: 42px }
+
+  /* ローディング */
+  .loading-msg { font-size: 16px }
+}
 </style>
 </head>
 <body>
